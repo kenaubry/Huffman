@@ -1,116 +1,78 @@
-#include <stdio.h>
-#include <stdlib.h>
 
-typedef struct s_node
+#include "huffman.h"
+
+// SORT THE TREE TO HAVE THE TWO SMALLEST
+// AND PUT THEM ON THE LEFT
+
+t_node  *link_tree(t_node *node)
 {
-    char c;
-    int occur;
-    struct s_node *left;
-    struct s_node *right; 
-}              t_node;
-
-typedef struct s_table
-{
-    char c;
-    int *code;
-}              t_table;
-
-int     nb_char(char *str)
-{
-    char letter[255];
-    int nbchar;
-    int i;
-
-    nbchar = 0;
-    i = 0;
-    while (str[i])
-    {
-        if (str[i] != letter[(int)str[i]])
-        {
-            nbchar++;
-            letter[(int)str[i]] = str[i];
-        }
-        i++;
-    }
-    return (nbchar);
-}
-
-t_node	*ft_lstnew(char c, int occur)
-{
-	t_node	*new;
-
-	new = malloc(sizeof(t_node));
-	if (!new)
-		return (NULL);
-	new->c = c;
-    new->occur = occur;
-	new->left = NULL;
-    new->right = NULL;
-	return (new);
-}
-
-t_node	*ft_lstlast(t_node *lst)
-{
-	if (!lst)
-		return (NULL);
-	while (lst->right)
-		lst = lst->right;
-	return (lst);
-}
-
-void	ft_lstadd_back(t_node **firstnode, t_node *new)
-{
-	t_node	*node;
-
-	if (firstnode && *firstnode)
-	{
-		node = *firstnode;
-		node = ft_lstlast(*firstnode);
-		node->right = new;
-		return ;
-	}
-	*firstnode = new;
-}
-
-t_node  *sort(t_node *node)
-{
-    int occur = INT_MAX;
-    while (node->right)
-    {
-        if (node->occur < occur)
-            occur = node->occur;
-        node = node->right;
-    }
-    
     return (node);
 }
 
-int occurence(char c, char *str)
+void    sort(t_node **firstnode, t_node *one, t_node *two)
 {
-    int occur = 0;
-    int i = 0;
-
-    while (str[i])
+    t_node *node = *firstnode;
+    
+    while (node)
     {
-        if (str[i] == c)
-            occur++;
-            i++;
+        if (node->right == one)
+            node->right = one->right;
+        if (node->right == two)
+            node->right = two->right;
+        node = node->right;
     }
-    return (occur);
+    two->right = *firstnode;
+    one->right = two;
+    *firstnode = one;
 }
 
-void	ft_bzero(void *s, size_t n)
+// GET THE CHARACTER WITH THE SMALLEST OCCURENCE
+
+t_node  *smallone(t_node *node)
 {
-	unsigned char	*s_cpy;
+    t_node  *smallone;
 
-	s_cpy = s;
-	while (n--)
-		*s_cpy++ = 0;
+    smallone = node;
+    while (node)
+    {
+        if (node->occur < smallone->occur)
+            smallone = node;
+        node = node->right;
+    }
+    return (smallone);
 }
+
+// GET THE SECOND CHARACTER WITH THE SMALLEST OCCURENCE 
+
+t_node  *smalltwo(t_node *node)
+{
+    t_node  *smallest;
+    t_node  *smalltwo;
+    
+    smallest = smallone(node);
+    smalltwo = node;
+    while (node)
+    {
+        if (smallest->occur == node->occur && node != smallest)
+        {
+            smalltwo = node;
+            return (smalltwo);
+        }
+        if (smalltwo->occur > smallest->occur 
+            && smalltwo->occur > node->occur)
+            smalltwo = node;
+        node = node->right;
+    }
+    return (smalltwo);
+}
+
+// PARSE THE STRING AND GET THE NUMBER OF OCCURENCE
+// OF A CHARACTER WITH NBCHAR TO PUT IT INTO OUR
+// STRUCTURE, WE RETURN THE NODES CREATED
 
 t_node  *parsing(char *str)
 {
-    t_node *firstnode;
+    t_node *list;
     t_node *node;
     char letters[255];
     int i = 1;
@@ -122,21 +84,23 @@ t_node  *parsing(char *str)
         return (NULL);
     occur = occurence(str[0], str);
     letters[(int)str[0]] = str[0];
-    firstnode = ft_lstnew(str[0], occur);
+    list = ft_lstnew(str[0], occur);
     while (str[i])
     {
         if (str[i] != letters[(int)str[i]])
         {
             occur = occurence(str[i], str);
             node = ft_lstnew(str[i], occur);
-            ft_lstadd_back(&firstnode, node);
+            ft_lstadd_back(&list, node);
             letters[(int)str[i]] = str[i];
         }
         i++;
     }
-    firstnode = sort(firstnode);
-    return (firstnode);
+    sort(&list, smallone(list), smalltwo(list));
+    return (list);
 }
+
+// PRINCIPAL FUNCTION
 
 t_node *huffman(char *str)
 {
@@ -148,35 +112,6 @@ t_node *huffman(char *str)
     nbchar = nb_char(str);
 
     i = 0;
-    node = parsing(str);    
+    node = parsing(str); 
     return (node);
 };
-
-
-int main(void)
-{
-    t_node *lst;
-    int i = 0;
-
-    lst = huffman("salut sssssc kessssnza");
-    while(lst->right)
-    {
-        printf("char = %c\n", lst->c);
-        printf("occurence = %d\n", lst->occur);
-        lst = lst->right;
-    }
-    return (0);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
