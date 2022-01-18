@@ -12,7 +12,8 @@ t_node	*ft_lstnew(char c, int occur)
 	new->c = c;
     new->occur = occur;
 	new->left = NULL;
-    new->right = NULL;
+    new->next = NULL;
+	new->right = NULL;
 	return (new);
 }
 
@@ -22,8 +23,8 @@ t_node	*ft_lstlast(t_node *lst)
 {
 	if (!lst)
 		return (NULL);
-	while (lst->right)
-		lst = lst->right;
+	while (lst->next)
+		lst = lst->next;
 	return (lst);
 }
 
@@ -37,7 +38,7 @@ void	ft_lstadd_back(t_node **firstnode, t_node *new)
 	{
 		node = *firstnode;
 		node = ft_lstlast(*firstnode);
-		node->right = new;
+		node->next = new;
 		return ;
 	}
 	*firstnode = new;

@@ -11,6 +11,7 @@ typedef struct s_node
     int occur;
     struct s_node *left;
     struct s_node *right; 
+    struct s_node *next; 
 }              t_node;
 
 typedef struct s_table

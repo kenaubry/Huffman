@@ -6,11 +6,11 @@ int main(void)
     int i = 0;
 
     lst = huffman("bonjour tout le mondeb");
-    while(lst->right)
+    while(lst->next)
     {
         printf("char = %c\n", lst->c);
         printf("occurence = %d\n", lst->occur);
-        lst = lst->right;
+        lst = lst->next;
     }
     return (0);
 }

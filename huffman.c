@@ -1,13 +1,22 @@
 
 #include "huffman.h"
 
+
+t_node  *link_tree(t_node *one, t_node *two)
+{
+    t_node *branch;
+
+    branch = ft_lstnew(127, one->occur + two->occur);
+    branch->next = two->next;
+    two->next = NULL;
+    one->next = NULL;
+    branch->left = one;
+    branch->right = two;
+    return (branch);
+}
+
 // SORT THE TREE TO HAVE THE TWO SMALLEST
 // AND PUT THEM ON THE LEFT
-
-t_node  *link_tree(t_node *node)
-{
-    return (node);
-}
 
 void    sort(t_node **firstnode, t_node *one, t_node *two)
 {
@@ -15,14 +24,14 @@ void    sort(t_node **firstnode, t_node *one, t_node *two)
     
     while (node)
     {
-        if (node->right == one)
-            node->right = one->right;
-        if (node->right == two)
-            node->right = two->right;
-        node = node->right;
+        if (node->next == one)
+            node->next = one->next;
+        if (node->next == two)
+            node->next = two->next;
+        node = node->next;
     }
-    two->right = *firstnode;
-    one->right = two;
+    two->next = *firstnode;
+    one->next = two;
     *firstnode = one;
 }
 
@@ -37,7 +46,7 @@ t_node  *smallone(t_node *node)
     {
         if (node->occur < smallone->occur)
             smallone = node;
-        node = node->right;
+        node = node->next;
     }
     return (smallone);
 }
@@ -61,7 +70,7 @@ t_node  *smalltwo(t_node *node)
         if (smalltwo->occur > smallest->occur 
             && smalltwo->occur > node->occur)
             smalltwo = node;
-        node = node->right;
+        node = node->next;
     }
     return (smalltwo);
 }
@@ -110,8 +119,11 @@ t_node *huffman(char *str)
     int nbchar;
 
     nbchar = nb_char(str);
-
-    i = 0;
-    node = parsing(str); 
+    node = parsing(str);
+    while (node->next)
+    {
+        sort(&node, smallone(node), smalltwo(node));
+        node = link_tree(node, node->next);
+    }
     return (node);
 };
